@@ -142,7 +142,7 @@ def users():
             if(conn!=None):
                 conn.rollback()
                 conn.close()
-            if(users!=None):
+            if(infos!=None):
                 return Response(json.dumps(userdata,default=str),mimetype="application/json",status=200)
             else:
                 return Response("Updated failed",mimetype="text/html",status=500)
@@ -209,18 +209,17 @@ def login():
                     user[0]
                 user_password=user[0]+user_password
                 hash_result=hashlib.sha512(user_password.encode()).hexdigest()
-
-                cursor.execute("SELECT * FROM users WHERE email=? AND password=?",[user_email,hash_result])
-                notes=cursor.fetchall()
-                for note in notes:
-                    note[0]
-                    note[1]
-                    note[2]
-                userdata={"userId":note[0],"username":note[1],"email":note[2],"loginToken":randomtokens}
-
-                cursor.execute("INSERT INTO user_session(user_id,login_token) VALUES(?,?)",[note[0],randomtokens,])
-                conn.commit()
-                rows=cursor.rowcount
+                if user_email and hash_result:
+                    cursor.execute("SELECT * FROM users WHERE email=? AND password=?",[user_email,hash_result])
+                    notes=cursor.fetchall()
+                    for note in notes:
+                        note[0]
+                        note[1]
+                        note[2]
+                        userdata={"userId":note[0],"username":note[1],"email":note[2],"loginToken":randomtokens}
+                        cursor.execute("INSERT INTO user_session(user_id,login_token) VALUES(?,?)",[note[0],randomtokens,])
+                        conn.commit()
+                        rows=cursor.rowcount
         except mariadb.ProgrammingError as error:
             print("Something went wrong with coding ")
             print(error)
@@ -292,8 +291,9 @@ def  createnotes():
                 users=cursor.fetchall()
                 for user in users:
                     user[1]
-                cursor.execute("INSERT INTO notes(content,user_id) VALUES(?,?)",[note_content,user[1]])
-                cursor.execute("SELECT u.username,n.content,n.created_at,n.user_id FROM users u INNER JOIN notes n ON u.id=n.user_id WHERE n.user_id=?",[user[1]])
+                if note_content:
+                    cursor.execute("INSERT INTO notes(content,user_id) VALUES(?,?)",[note_content,user[1]])
+                    cursor.execute("SELECT u.username,n.content,n.created_at,n.user_id FROM users u INNER JOIN notes n ON u.id=n.user_id WHERE n.user_id=?",[user[1]])
                 infos=cursor.fetchall()
                 for info in infos:
                     info[0],info[1],info[2],info[3]
@@ -314,7 +314,7 @@ def  createnotes():
             if(conn!=None):
                 conn.rollback()
                 conn.close()
-            if(users!=None):
+            if(infos!=None):
                 return Response(json.dumps(notedata,default=str),mimetype="application/json",status=200)
             else:
                 return Response("Something went wrong",mimetype="text/html",status=500)
@@ -489,9 +489,10 @@ def createTask():
                 users=cursor.fetchall()
                 for user in users:
                     user[1]
-                cursor.execute("INSERT INTO task(content,user_id,complete_date) VALUES(?,?,?)",[task_content,user[1],task_date])
-                cursor.execute("SELECT u.username,t.content,t.created_at,t.user_id,t.complete_date FROM users u INNER JOIN task t ON u.id=t.user_id WHERE t.user_id=?",[user[1]])
-                infos=cursor.fetchall()
+                if task_content:
+                    cursor.execute("INSERT INTO task(content,user_id,complete_date) VALUES(?,?,?)",[task_content,user[1],task_date])
+                    cursor.execute("SELECT u.username,t.content,t.created_at,t.user_id,t.complete_date FROM users u INNER JOIN task t ON u.id=t.user_id WHERE t.user_id=?",[user[1]])
+                    infos=cursor.fetchall()
                 for info in infos:
                     info[0],info[1],info[2],info[3],info[4]
                     taskdata={"username":info[0],"content":info[1],"created_at":info[2],"userId":info[3],"Target_date":info[4]}
