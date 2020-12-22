@@ -446,7 +446,7 @@ def orderingNotes():
                 users=cursor.fetchall()
                 for user in users:
                     user[2]
-                cursor.execute("SELECT n.content,n.id FROM notes n INNER JOIN user_session us ON n.user_id=us.user_id  WHERE us.login_token=? ORDER BY created_at DESC",[user[2]])
+                cursor.execute("SELECT n.content,n.id FROM notes n INNER JOIN user_session us ON n.user_id=us.user_id  WHERE us.login_token=? ORDER BY created_at ASC",[user[2]])
                 infos=cursor.fetchall()
                 infoarray=[]
                 for info in infos:
@@ -646,7 +646,7 @@ def orderingTasks():
                 users=cursor.fetchall()
                 for user in users:
                     user[2]
-                cursor.execute("SELECT t.content,t.complete_date,t.id FROM task t INNER JOIN user_session us ON t.user_id=us.user_id  WHERE us.login_token=? ORDER BY complete_date DESC",[user[2]])
+                cursor.execute("SELECT t.content,t.complete_date,t.id FROM task t INNER JOIN user_session us ON t.user_id=us.user_id  WHERE us.login_token=? ORDER BY complete_date ASC",[user[2]])
                 infos=cursor.fetchall()
                 infoarray=[]
                 for info in infos:
